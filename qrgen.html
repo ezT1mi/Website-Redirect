@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR-Code Generator</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#06b6d4;--muted:#94a3b8;color-scheme: dark}
+    html,body{height:100%}
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:linear-gradient(180deg,#071025 0%, #061426 100%); color:#e6eef6; display:flex; align-items:center; justify-content:center; padding:28px}
+    .app{width:100%; max-width:980px}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:rgba(255,255,255,0.03); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+    input[type=text], textarea, select{width:100%; padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06); background:transparent; color:inherit; outline:none}
+    textarea{min-height:120px; resize:vertical}
+    .row{display:flex;gap:10px;align-items:center}
+    .controls{display:flex;flex-direction:column;gap:12px}
+    .btn{cursor:pointer;padding:10px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent),#60a5fa); color:#022; font-weight:600}
+    .small{padding:8px 10px;font-size:13px}
+    .muted{color:var(--muted); font-size:13px}
+    .preview{display:flex;flex-direction:column;align-items:center; gap:12px}
+    .preview-box{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:14px;border-radius:10px}
+    .actions{display:flex;gap:8px}
+    footer{margin-top:12px;color:var(--muted);font-size:13px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.preview{order:-1}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#06b6d4" stroke-width="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="#60a5fa" stroke-width="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="#7c3aed" stroke-width="1.5"/></svg>
+      <div>
+        <h1>QR-Code Generator</h1>
+        <div class="muted">Text/URL eingeben → Generieren & herunterladen</div>
+      </div>
+    </header>
+    <div class="grid">
+      <section class="card">
+        <div class="controls">
+          <div>
+            <label for="data">Text oder URL</label>
+            <textarea id="data">https://example.com</textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:end">
+            <div>
+              <label for="size">Größe (px)</label>
+              <input id="size" type="number" min="64" max="2048" value="300" />
+            </div>
+            <div>
+              <label for="ec">Fehlerkorrektur</label>
+              <select id="ec">
+                <option value="L">L</option>
+                <option value="M" selected>M</option>
+                <option value="Q">Q</option>
+                <option value="H">H</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label for="fg">Farbe</label>
+              <input id="fg" type="color" value="#04122a" />
+            </div>
+            <div>
+              <label for="bg">Hintergrund</label>
+              <input id="bg" type="color" value="#ffffff" />
+            </div>
+          </div>
+          <div>
+            <label for="margin">Rand</label>
+            <input id="margin" type="number" min="0" max="20" value="2" />
+          </div>
+          <div class="row">
+            <button id="gen" class="btn">Generieren</button>
+            <button id="clear" class="btn small" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit">Löschen</button>
+          </div>
+          <div class="actions">
+            <button id="download-png" class="btn small">PNG</button>
+          </div>
+        </div>
+      </section>
+      <section class="card preview">
+        <div id="qrcode" class="preview-box"></div>
+      </section>
+    </div>
+    <footer>QR-Code bleibt gültig, solange die eingebettete URL/Text erreichbar ist.</footer>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script>
+    const dataEl=document.getElementById('data');
+    const sizeEl=document.getElementById('size');
+    const ecEl=document.getElementById('ec');
+    const fgEl=document.getElementById('fg');
+    const bgEl=document.getElementById('bg');
+    const marginEl=document.getElementById('margin');
+    const qrcodeEl=document.getElementById('qrcode');
+    const genBtn=document.getElementById('gen');
+    const clearBtn=document.getElementById('clear');
+    const downloadPngBtn=document.getElementById('download-png');
+    function generate(){
+      qrcodeEl.innerHTML="";
+      const opts={width:parseInt(sizeEl.value),margin:parseInt(marginEl.value),color:{dark:fgEl.value,light:bgEl.value},errorCorrectionLevel:ecEl.value};
+      QRCode.toCanvas(dataEl.value,opts,function(err,canvas){
+        if(err)return console.error(err);
+        qrcodeEl.appendChild(canvas);
+      });
+    }
+    genBtn.addEventListener('click',generate);
+    clearBtn.addEventListener('click',()=>{qrcodeEl.innerHTML="";dataEl.value=""});
+    downloadPngBtn.addEventListener('click',()=>{
+      const canvas=qrcodeEl.querySelector('canvas');
+      if(!canvas)return;
+      const link=document.createElement('a');
+      link.download='qrcode.png';
+      link.href=canvas.toDataURL('image/png');
+      link.click();
+    });
+    generate();
+  </script>
+</body>
+</html>
