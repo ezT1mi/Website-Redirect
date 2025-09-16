@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geräteweiterleitung</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      padding: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Willkommen!</h1>
+    <div id="redirectMessage"></div>
+  </div>
+
+  <script>
+    // Funktion zur Erkennung des Geräts
+    function detectDevice() {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isIOS = /iphone|ipad|ipod/.test(userAgent);
+      const isAndroid = /android/.test(userAgent);
+      const isDesktop = !isIOS && !isAndroid; // Windows, Linux, macOS
+
+      if (isIOS) {
+        // Weiterleitung zum App Store
+        window.location.href = "https://apps.apple.com/de/app/wotan-apotheke/id6738841467";
+      } else if (isAndroid) {
+        // Weiterleitung zum Google Play Store
+        window.location.href = "https://play.google.com/store";
+      } else if (isDesktop) {
+        // Nachricht mit Auswahl für Desktop
+        document.getElementById("redirectMessage").innerHTML = `
+          <p>Bitte wählen Sie aus, auf welchen Dienst Sie weitergeleitet werden möchten:</p>
+          <a href="https://apps.apple.com/de/app/wotan-apotheke/id6738841467" class="button">App Store</a>
+          <a href="https://play.google.com/store" class="button">Google Play Store</a>
+        `;
+      }
+    }
+
+    // Geräteerkennung beim Laden der Seite ausführen
+    window.onload = detectDevice;
+  </script>
+</body>
+</html>
